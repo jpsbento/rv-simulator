@@ -7,7 +7,7 @@ import matplotlib
 from matplotlib import pyplot
 
 """
-This module takes in a calculated set of frequencies and amplitudes to rcreate a power spectrum with soem added noise.
+This module takes in a calculated set of frequencies and amplitudes to recreate a power spectrum with some added noise.
 """
 
 #Set global variables
@@ -18,16 +18,19 @@ time = []
 
 def make_noise():
     """
-    Creates a time series
+    Creates a time series from the input frequencies and amplitudes along with specified observational error
     """
-    timeseries = obs_error * numpy.random.normal(size=len(time))
+    timeseries = obs_error * numpy.random.normal(size=len(time)) #Adds noise due to equipment
     for i in range(len(nu)):
-        As = (numpy.random.normal()/numpy.sqrt(2))*A_vel[i]
+        As = (numpy.random.normal()/numpy.sqrt(2))*A_vel[i] #Adds intrinsic measurement noise.
         Ac = (numpy.random.normal()/numpy.sqrt(2))*A_vel[i]
         timeseries = timeseries +  As * numpy.sin(nu[i] * 2 * numpy.pi * time) + Ac * numpy.cos(nu[i] * 2 * numpy.pi * time)
     return timeseries
 
 def setdata(freq, amp, t, obs):
+    """
+    Sets data for this module to make running other functions easier.
+    """
     global A_vel
     global nu
     global time
@@ -38,6 +41,9 @@ def setdata(freq, amp, t, obs):
     obs_error = obs
 
 def plot():
+    """
+    Plots both the timeseries and its ideal power spectrum.
+    """
     vel = make_noise()
     fig1 = pyplot.subplot(211)
     pyplot.plot(time,vel)
