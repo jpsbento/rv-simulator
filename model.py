@@ -21,31 +21,20 @@ import csv
 
 # Sets all variables
 infile = "test_iso2.csv"	#sys.argv[1], File containing isochrone
-mass = float(sys.argv[1])
+#mass = float(sys.argv[1])
+mass = 1
 lumin = 0
 temp = 0
-outfile = sys.argv[2]
-timeSampling = 600 		#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
-days = 4 			#How long in days you will be observing straight
-obsPeriod = 1 			#Hours of observing at night
-spaceLength = [1,1,1,17]		#List of lengths of spaces between observation periods in hours.
-medlsVal = []  			#Median amplitude value of the smoothed lomb scargle. This is determined in the program
-iterations = 1000		#Number of times you would like ot run the script
+#outfile = sys.argv[2]
+outfile = 'out'
+timeSampling = 600 			#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
+days = 4 					#How long in days you will be observing straight
+obsPeriod = 1 				#Hours of observing at night
+spaceLength = [1,1,1,17] 	#List of lengths of spaces between observation periods in hours.
+medlsVal = [] 				#Median amplitude value of the smoothed lomb scargle. This is determined in the program
+iterations = 10 			#Number of times you would like to run the script
 
-
-
-
-def movingaverage(data, window_size):
-	"""
-	Defines the smoothing function used later on. It take in the time series and the size od the range of points to be averaged over.
-	"""
-	window= numpy.ones(int(window_size))/float(window_size)
-	return numpy.convolve(data, window, 'same')
-
-
-
-
-
+																			
 # Using the isochrone module to read model. It then returns and sets the values of Luminousity and Temperature.
 # The isochrone may not have the precise mass you are looking for, and will instead return the values corresponding to the closest mass found.
 isomod.set_data(infile, mass)    #sets data of isochrone to be read and the mass to be found.
@@ -182,3 +171,11 @@ with open(outfile + ".csv", 'wb') as csvfile:
 	pyplot.show()
 	output.writerow(medlsVal)
 	print medls
+
+
+def movingaverage(data, window_size):
+	"""
+	Defines the smoothing function used later on. It take in the time series and the size od the range of points to be averaged over.
+	"""
+	window= numpy.ones(int(window_size))/float(window_size)
+	return numpy.convolve(data, window, 'same')

@@ -61,7 +61,7 @@ def find_nearest(array,value):
 
 def run():
 	"""
-	Funs module to find and return the luminousity and temperature of input mass.
+	Runs module to find and return the luminousity and temperature of input mass.
 	"""
 	mass, lumin, temp=readmod(the_infile)
 	matchlumin, matchtemp = find(the_value, mass, lumin, temp)
