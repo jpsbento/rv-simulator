@@ -10,14 +10,22 @@ from PyAstronomy import pyTiming
 import csv
 
 
-"""
+'''
 	This program reads in an isochrone produced from http://stev.oapd.inaf.it/cgi-bin/cmd, along with the mass of the star to be considered.
 		From this, it draws the other necessary parameters for the star (luminousity and temperature) from the isochrone and calculates the expected mode frequencies and amplitudes using equations
         from Huber et.al (2011), Kjeldsen & Bedding (1995) and Lecture Notes on Stellar Oscillations by J. Christensen-Dalsgaard [5th Ed. 2003/03]. The number of frequencies calculated can be specified by the user.
 	The program then sums the sines of these frequencies along with some noise to produced the ideal signal. From this we can then use the program to test various scenarios with different sampling rates and observation length and see the results.
 	The programs used the Lomb-Scargle method to analyse the sampled signal.Many modifications can be made in order to organise your output and how the program runs.
 		The purpose of this program is to be able to run simlutions on measuring mode frequenceis of different stars to find suitable targets for the HERMES spectrographs to search for exoplanets around.
-"""
+'''
+
+def movingaverage(data, window_size):
+	"""
+	Defines the smoothing function used later on. It take in the time series and the size od the range of points to be averaged over.
+	"""
+	window= numpy.ones(int(window_size))/float(window_size)
+	return numpy.convolve(data, window, 'same')
+
 
 # Sets all variables
 infile = "test_iso2.csv"	#sys.argv[1], File containing isochrone
@@ -27,12 +35,12 @@ lumin = 0
 temp = 0
 #outfile = sys.argv[2]
 outfile = 'out'
-timeSampling = 600 			#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
-days = 4 					#How long in days you will be observing straight
-obsPeriod = 1 				#Hours of observing at night
-spaceLength = [1,1,1,17] 	#List of lengths of spaces between observation periods in hours.
-medlsVal = [] 				#Median amplitude value of the smoothed lomb scargle. This is determined in the program
-iterations = 10 			#Number of times you would like to run the script
+timeSampling = 600 				#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
+days = 4 						#How long in days you will be observing straight
+obsPeriod = 1 					#Hours of observing at night
+spaceLength = [1,1,1,17] 		#List of lengths of spaces between observation periods in hours.
+medlsVal = [] 					#Median amplitude value of the smoothed lomb scargle. This is determined in the program
+iterations = 100				#Number of times you would like to run the script
 
 																			
 # Using the isochrone module to read model. It then returns and sets the values of Luminousity and Temperature.
@@ -50,15 +58,20 @@ nu_max = amod.return_nu_max()
 
 timelist = (days*24*3600)/timeSampling
 
-print "Mass(Mo):", mass, ", Luminousity(Lo):",lumin, ", Temperature(K):", temp, "nu_max:", nu_max
-print "Peak frequency(microHz)(ls)	Peak frequency(microsHz)(smooth)	Peak amplitude(ls)	Peak amplitude(smooth)	Peak STD	Good Star?"
+header1 = ['Mass[Solar Masses]:',str(mass) ,'Luminosity[Solar Luminosities]:',str(lumin),'Temperature[K]:',str(temp),'nu_max[microHz]:',str(nu_max)]
+header2 = ['Peak frequency[microHz](ls)','Peak frequency[microsHz](smooth)','Peak amplitude[m/s](ls)','Peak amplitude[m/s](smooth)','Peak STD','Good Star?']
+print ', '.join(header1)
+print ', '.join(header2) 
 
 with open(outfile + ".csv", 'wb') as csvfile:
-        output = csv.writer(csvfile, delimiter=',')
-        header1 = ["Mass(Mo):", mass, "Luminousity(Lo):", lumin, "Temperature(K):", temp, "nu_max:", nu_max]
-	header2 = ["Peak frequency(microHz)(ls)", "Peak frequency(microsHz)(smooth)", "Peak amplitude(ls)", "Peak amplitude(smooth)", "Good Star?"]
-        output.writerow(header1)
+	output = csv.writer(csvfile, delimiter=',')
+#    header1 = ["Mass(Mo):", mass, "Luminousity(Lo):", lumin, "Temperature(K):", temp, "nu_max:", nu_max]
+#	header2 = ["Peak frequency(microHz)(ls)", "Peak frequency(microsHz)(smooth)", "Peak amplitude(ls)", "Peak amplitude(smooth)", "Good Star?"]
+    	output.writerow(header1)
 	output.writerow(header2)
+	
+	
+	
 	for i in range(iterations):
 		time = timeSampling*numpy.arange(timelist)                          #defines time domain
 		noise.setdata(1e-6*data[0].flatten(), data[1].flatten(), time, 10)  #noise.setdata(frequencies, amplitudes, time, observational error):
@@ -138,7 +151,7 @@ with open(outfile + ".csv", 'wb') as csvfile:
 					binSet.append(smoothls[j])
 			std = numpy.std(binSet)
 			stdList.append(std)
-
+x
 		pyplot.figure()
 		fig1 = pyplot.subplot(111)
 		pyplot.plot(ls.freq, stdList)
@@ -147,15 +160,17 @@ with open(outfile + ".csv", 'wb') as csvfile:
 		fig1.set_ylabel("STD")
 		
 		'''
-		pyplot.figure()
-		fig2 = pyplot.subplot(111)
-		pyplot.plot(ls.freq, smoothls)
-		pyplot.plot(ls.freq, numpy.ones(len(smoothls))*medls, ':')
-		pyplot.plot(ls.freq, numpy.ones(len(smoothls))*medls*2, ':')	
-		fig2.set_title("Smoothed Lomb-Scargle Periodogram")
-		fig2.set_xlabel("Frequency (Hz)")
-		fig2.set_ylabel("Power (probably (m/s)^2)")
-		pyplot.show(block=False)
+		doPlot=False
+		if doPlot:
+			pyplot.figure()
+			fig2 = pyplot.subplot(111)
+			pyplot.plot(ls.freq, smoothls)
+			pyplot.plot(ls.freq, numpy.ones(len(smoothls))*medls, ':')
+			pyplot.plot(ls.freq, numpy.ones(len(smoothls))*medls*2, ':')	
+			fig2.set_title("Smoothed Lomb-Scargle Periodogram")
+			fig2.set_xlabel("Frequency (Hz)")
+			fig2.set_ylabel("Power (probably (m/s)^2)")
+			pyplot.show(block=False)
 		
 		freqInd = 0
 		for j in numpy.arange(len(ls.power)):
@@ -166,16 +181,11 @@ with open(outfile + ".csv", 'wb') as csvfile:
 			if smoothls[k] == max(smoothls):
 				smoothInd = k
 		print (ls.freq[freqInd])*1000000, (ls.freq[smoothInd])*1000000, max(ls.power), max(smoothls), goodStar
-		printresults = [(ls.freq[freqInd])*1000000, (ls.freq[smoothInd])*1000000, max(ls.power), max(smoothls), goodStar]
+		printresults = [(ls.freq[freqInd])*1000000, (ls.freq[smoothInd])*1000000, max(ls.power), max(smoothls), 0 ,goodStar]
 		output.writerow(printresults)
-	pyplot.show()
+	if doPlot: pyplot.show()
 	output.writerow(medlsVal)
 	print medls
 
 
-def movingaverage(data, window_size):
-	"""
-	Defines the smoothing function used later on. It take in the time series and the size od the range of points to be averaged over.
-	"""
-	window= numpy.ones(int(window_size))/float(window_size)
-	return numpy.convolve(data, window, 'same')
+

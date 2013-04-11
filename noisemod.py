@@ -31,12 +31,12 @@ def setdata(freq, amp, t, obs):
     """
     Sets data for this module to make running other functions easier.
     """
+    global nu    
     global A_vel
-    global nu
     global time
     global obs_error
-    A_vel = amp
     nu = freq
+    A_vel = amp
     time = t
     obs_error = obs
 
