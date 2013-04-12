@@ -30,14 +30,14 @@ def movingaverage(data, window_size):
 # Sets all variables
 infile = "test_iso2.csv"	#sys.argv[1], File containing isochrone
 #mass = float(sys.argv[1])
-mass = 1
+mass = 1.395
 lumin = 0
 temp = 0
 #outfile = sys.argv[2]
 outfile = 'out'
-timeSampling = 600 				#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
+timeSampling = 2400 				#Sampling rate given in seconds eg. sampling every 10 minutes = 600 seconds.
 days = 4 						#How long in days you will be observing straight
-obsPeriod = 1 					#Hours of observing at night
+obsPeriod = 7 					#Hours of observing at night
 spaceLength = [1,1,1,17] 		#List of lengths of spaces between observation periods in hours.
 medlsVal = [] 					#Median amplitude value of the smoothed lomb scargle. This is determined in the program
 iterations = 100				#Number of times you would like to run the script
@@ -65,8 +65,6 @@ print ', '.join(header2)
 
 with open(outfile + ".csv", 'wb') as csvfile:
 	output = csv.writer(csvfile, delimiter=',')
-#    header1 = ["Mass(Mo):", mass, "Luminousity(Lo):", lumin, "Temperature(K):", temp, "nu_max:", nu_max]
-#	header2 = ["Peak frequency(microHz)(ls)", "Peak frequency(microsHz)(smooth)", "Peak amplitude(ls)", "Peak amplitude(smooth)", "Good Star?"]
     	output.writerow(header1)
 	output.writerow(header2)
 	
