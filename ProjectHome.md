@@ -1,0 +1,3 @@
+Research software that creates a radial velocity light curve based on stellar intrinsic oscillation information. It then perturbs the velocity curve with noise and adds planet signal and attempts to recover the original known information.
+
+This code can be used to gauge the impact of realistic sampling and radial velocity noise in the context of asteroseismology and planet finding observations and detection.
